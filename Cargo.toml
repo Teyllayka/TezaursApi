@@ -1,0 +1,21 @@
+[package]
+name = "tezaursapi"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "api wrapper for tezaurs.lv"
+categories = ["api-bindings", "asynchronous"]
+readme = "README.md"
+keywords = ["tezaurs", "tezaurslv", "api", "asynchronous", "api-bindings"]
+repository = "https://github.com/Teyllayka/tezaursapi"
+
+
+[dependencies]
+reqwest = { version = "0.11.20", features = ["json"] }
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.107"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+
