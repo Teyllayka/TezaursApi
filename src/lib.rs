@@ -1,4 +1,4 @@
-
+use std::collections::HashMap;
 use reqwest::Client;
 use serde::{Deserialize, Deserializer};
 pub mod error;
@@ -66,8 +66,47 @@ impl TezaursApi {
         let response_text = response.text().await?;
         Ok(response_text)
     }
+
+    pub async fn suitable_paradigm(&self, word: String) -> Result<Vec<Paradigm>, TezaursApiError> {
+        let url = format!("{}/suitable_paradigm/{}", API, word);
+        let response = self.client.get(url).send().await?;
+        let response_text = response.text().await?;
+        let json: Value = serde_json::from_str(&response_text)?;
+        let data: Vec<Paradigm> = serde_json::from_value(json.clone())?;
+        Ok(data)
+    }
+
+    pub async fn inflect_phrase(&self, sentence: String) -> Result<Vec<Inflection>, TezaursApiError> {
+        let url = format!("{}/inflect_phrase/{}", API, sentence);
+        let response = self.client.get(url).send().await?;
+        let response_text = response.text().await?;
+        let json: Value = serde_json::from_str(&response_text)?;
+        let map: HashMap<String, String> = serde_json::from_value(json).unwrap();
+        let inflections: Vec<Inflection> = map.into_iter().map(|(case, sentence)| {
+            let case = match case.as_str() {
+                "Akuzatīvs" => Case::Accusative,
+                "Ģenitīvs" => Case::Genitive,
+                "Datīvs" => Case::Datīvs,
+                "Lokatīvs" => Case::Locative,
+                "Nominatīvs" => Case::Nominative,
+                "Instrumentālis" => Case::Instrumental,
+                "Vokatīvs" => Case::Vocative,
+                _ => panic!("Unexpected case"), // Handle unexpected cases appropriately
+            };
+            Inflection { case, sentence }
+        }).collect();
+
+        Ok(inflections)
+    }
 }
 
+#[derive(Deserialize, Debug)]
+pub struct Paradigm {
+    #[serde(rename = "ID")]
+    pub id: u32,
+    #[serde(rename = "Description")]
+    pub description: String,
+}
 
 #[derive(Deserialize, Debug)]
 pub struct TokenizeResponse {
@@ -152,6 +191,13 @@ pub enum PartOfSpeech {
     Verb,
 }
 
+
+#[derive(Deserialize, Debug)]
+pub struct Inflection {
+    pub case: Case,
+    pub sentence: String,
+}
+
 #[derive(Deserialize, Debug)]
 
 pub enum Case {
@@ -175,8 +221,8 @@ pub enum Case {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::Value;
-    use crate::{AnalyzedWord, TezaursApi, Token, TokenizeResponse};
+
+    use crate::{TezaursApi,};
 
     #[tokio::test]
     async fn my_test() -> Result<(), Box<dyn std::error::Error>> {
@@ -198,6 +244,13 @@ mod tests {
         // Latvijas Universitātes Matemātikas un Informātikas Institūts
 
 
+        let inflections = api.inflect_phrase(String::from("Latvijas Universitātes Matemātikas un Informātikas Institūtam")).await?;
+        println!("{:?}", inflections);
+        //[Inflection { case: Accusative, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūtu" }, Inflection { case: Datīvs, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūtam" }, Inflection { case:Locative, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūtā" }, Inflection { case: Nominative, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūts" }, Inflection { case: Genitive, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūta" }]
+
+        let paradigms = api.suitable_paradigm(String::from("pokemonizators")).await?;
+        println!("{:?}", paradigms);
+        // [Paradigm { id: 1, description: "noun-1a" }, Paradigm { id: 13, description: "adj-1" }, Paradigm { id: 39, description: "foreign" }]
 
         assert!(true);
 
