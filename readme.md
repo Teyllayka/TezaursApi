@@ -28,9 +28,19 @@ let text = api.normalize_phrase(String::from("Latvijas Universitātes Matemātik
 println!("{:?}", text);
 // Latvijas Universitātes Matemātikas un Informātikas Institūts
 
+let inflections = api.inflect_phrase(String::from("Latvijas Universitātes Matemātikas un Informātikas Institūtam")).await?;
+println!("{:?}", inflections);
+//[Inflection { case: Accusative, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūtu" }, Inflection { case: Datīvs, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūtam" }, Inflection { case:Locative, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūtā" }, Inflection { case: Nominative, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūts" }, Inflection { case: Genitive, sentence: "Latvijas Universitātes Matemātikas un Informātikas Institūta" }]
+
+let paradigms = api.suitable_paradigm(String::from("pokemonizators")).await?;
+println!("{:?}", paradigms);
+// [Paradigm { id: 1, description: "noun-1a" }, Paradigm { id: 13, description: "adj-1" }, Paradigm { id: 39, description: "foreign" }]
+
 ```
 
 ### impelented:
 - [x] analyze
 - [x] tokenize
 - [x] normalize_phrase
+- [x] inflect_phrase
+- [x] suitable_paradigm
