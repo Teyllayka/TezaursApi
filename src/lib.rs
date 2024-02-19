@@ -76,6 +76,25 @@ impl TezaursApi {
         Ok(data)
     }
 
+    pub async fn morphotagger(&self, sentence: String) -> Result<String, TezaursApiError> {
+        let url = format!("{}/morphotagger/{}", API, sentence);
+        let response = self.client.get(url).send().await?;
+        let response_text = response.text().await?;
+        Ok(response_text)
+    }
+
+    pub async fn verbs(&self, word: String) -> Result<Vec<String>, TezaursApiError> {
+        let url = format!("{}/verbs/{}", API, word);
+        let response = self.client.get(url).send().await?;
+        let response_text = response.text().await?;
+        let elements: Vec<&str> = response_text[1..response_text.len()-1].split(',').collect();
+
+        let vec: Vec<String> = elements.iter()
+            .map(|s| s.trim().replace("\"", ""))
+            .collect();
+        Ok(vec)
+    }
+
     pub async fn inflect_phrase(&self, sentence: String) -> Result<Vec<Inflection>, TezaursApiError> {
         let url = format!("{}/inflect_phrase/{}", API, sentence);
         let response = self.client.get(url).send().await?;
@@ -251,6 +270,16 @@ mod tests {
         let paradigms = api.suitable_paradigm(String::from("pokemonizators")).await?;
         println!("{:?}", paradigms);
         // [Paradigm { id: 1, description: "noun-1a" }, Paradigm { id: 13, description: "adj-1" }, Paradigm { id: 39, description: "foreign" }]
+
+        let morphs = api.morphotagger(String::from("vīrs ar cirvi.")).await?;
+        println!("{:?}", morphs);
+        // vīrs    ncmsn1  vīrs
+        // ar      spsa    ar
+        // cirvi   ncmsa2  cirvis
+        // .       zs      .
+
+        let inflcs = api.verbs(String::from("domai")).await?;
+        println!("{:?}", inflcs);
 
         assert!(true);
 
