@@ -49,7 +49,7 @@ println!("{:?}", inflcs);
 
 ```
 
-### impelented:
+### implemented:
 - [x] analyze
 - [x] tokenize
 - [x] normalize_phrase
