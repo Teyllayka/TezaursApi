@@ -36,6 +36,17 @@ let paradigms = api.suitable_paradigm(String::from("pokemonizators")).await?;
 println!("{:?}", paradigms);
 // [Paradigm { id: 1, description: "noun-1a" }, Paradigm { id: 13, description: "adj-1" }, Paradigm { id: 39, description: "foreign" }]
 
+let morphs = api.morphotagger(String::from("vīrs ar cirvi.")).await?;
+println!("{:?}", morphs);
+// vīrs    ncmsn1  vīrs
+// ar      spsa    ar
+// cirvi   ncmsa2  cirvis
+// .       zs      .
+
+let inflcs = api.verbs(String::from("domai")).await?;
+println!("{:?}", inflcs);
+// ["Dat", "Nom", "Gen", "Acc", "Loc"]
+
 ```
 
 ### impelented:
@@ -44,3 +55,5 @@ println!("{:?}", paradigms);
 - [x] normalize_phrase
 - [x] inflect_phrase
 - [x] suitable_paradigm
+- [x] morphotagger
+- [x] verbs

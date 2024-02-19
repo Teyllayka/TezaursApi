@@ -280,6 +280,7 @@ mod tests {
 
         let inflcs = api.verbs(String::from("domai")).await?;
         println!("{:?}", inflcs);
+        // ["Dat", "Nom", "Gen", "Acc", "Loc"]
 
         assert!(true);
 
